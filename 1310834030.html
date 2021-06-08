@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head> 
+		<meta charset="utf-8"> 
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+		<meta http-equiv=X-UA-Compatible content="IE=edge">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+		<style type="text/css">
+			img{
+  				display: block;
+  				width: 100%;
+  				height: auto;
+			}
+			h1{
+				margin: auto;
+				padding: auto;
+			}
+			.bg{
+        		background: url("https://up.enterdesk.com/edpic_source/1f/e8/44/1fe844d4a15f7ef4f765899755534d1c.jpg") ;
+    		}
+    		.nav{
+    			height: auto;
+     			width: auto;
+     			background-color: #7C7C7C;
+    		}
+    		.line1{
+    			margin-top:0.5%;
+    			padding:3%;
+    		}
+    		.line2{
+    			margin-top:0.5%;
+    			padding:3%;
+    		}
+    		.line3-left{
+    			margin-top:0.5%;
+    			margin-left:20%;
+    			padding:3%;
+    			float: left;
+    		}
+    		.line3-right{
+    			margin-top:0.5%;
+    			margin-left:50%; 
+    			padding:3%;
+    		}
+			.card {
+			  width: 20%;
+			  margin-left:20%;
+			}
+		</style>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+	</head>
+	<body class="bg">
+	<div class="nav">
+		<h1>Computer Vision Final</h1>
+	</div> 
+		<div class="input-group mb-3 line1">
+  			<input type="text" class="form-control" placeholder="請輸入網址" id="url" name="url">
+  			<div class="input-group-append">
+    			<button class="btn btn-primary" id="submit" onclick="submit()">圖片辨識</button>
+  			</div>
+		</div>
+		<div class="input-group line2">
+  			<div class="custom-file">
+    			<input type="file" class="custom-file-input" name="file" id="file" olclick="submit()">
+    			<label class="custom-file-label" for="inputGroupFile04">選擇檔案</label>
+  			</div>
+  			<div class="input-group-append">
+    			<button class="btn btn-primary" type="button" id="submit2" onclick="submit2()">圖片辨識</button>
+  			</div>
+		</div>
+		<div class="line3-left card">
+			<img id="Sourceimg" src="#">
+		</div>
+		<div class="line3-right">
+			<table id="table"></table>
+		</div>			
+		<script>
+		$('#file').on('change', function(e){      
+      		const file = this.files[0];
+     		const objectURL = URL.createObjectURL(file);
+      		$('#Sourceimg').attr('src', objectURL);
+    	});			
+		</script>
+	</body>
+	<script>
+		function submit(){
+			document.getElementById("Sourceimg").src="url";
+			const api = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Prediction/b498e738-7358-4339-a90a-dee022481520/classify/iterations/Iteration1/url"
+			const header ={
+				'Prediction-Key':'98f07e5fdb234b309ac027a196bb6306',
+				'Content-Type':'application/json'
+			}
+			const body ={
+				"Url": document.getElementById("url").value
+			}
+			$("#Sourceimg").attr("src",body.Url);
+			fetch(api, {
+				body: JSON.stringify(body),
+				headers: header,
+				method: 'POST',
+			})
+			.then(response => response.json())
+			.then(response =>{
+				document.getElementById('table').innerHTML="";
+				response.predictions.forEach(element => {
+					document.getElementById('table').innerHTML+=
+					`<thead>
+    					<tr>
+      						<th scope="col">value</th>
+      						<th scope="col">tagname</th>
+    					</tr>
+  					</thead> 
+						<tr>
+							<td>${element.probability}</td>
+							<td>${element.tagName}</td>
+						</tr>`;
+				});
+			})
+		} 
+		
+	</script>
+	<script>
+		function submit2(){
+			const file = document.getElementById('file').files[0];
+			const api = "https://westus2.api.cognitive.microsoft.com/customvision/v3.0/Prediction/b498e738-7358-4339-a90a-dee022481520/classify/iterations/Iteration1/image"
+			const header ={
+				'Prediction-Key':'98f07e5fdb234b309ac027a196bb6306',
+				'Content-Type':'application/octet-stream'
+			}
+			const body =file;
+			fetch(api, {
+				body: body,
+				headers: header,
+				method: 'POST',
+			})
+			.then(response => response.json())
+			.then(response =>{
+				document.getElementById('table').innerHTML="";
+				response.predictions.forEach(element => {
+					document.getElementById('table').innerHTML+=
+					`<thead>
+    					<tr>
+      						<th scope="col">value</th>
+      						<th scope="col">tagname</th>
+    					</tr>
+  					</thead> 
+						<tr>
+							<td>${element.probability}</td>
+							<td>${element.tagName}</td>
+						</tr>`;
+				});
+			})
+		} 
+		
+	</script>
+</html>
